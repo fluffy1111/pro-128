@@ -1,0 +1,39 @@
+from email import header
+from bs4 import BeautifulSoup
+import pandas as pd
+import requests
+
+from star_finder import Distance
+
+url = 'https://en.wikipedia.org/wiki/List_of_brown_dwarfs'
+page = requests.get(url)
+all_Page = BeautifulSoup(page.text, 'html.parser')
+
+find = all_Page.find_all('table', {'class':'wikitable'})
+
+total_table = len(find)
+
+list = []
+
+find_rows = find[1].find_all('tr')
+
+for i in find_rows:
+    td = i.find_all('td')
+    td_tag = [i.text.rstrip() for x in td]
+    list.append(td_tag)
+
+star_name = []
+radius = []
+mass = []
+Distance = []
+
+for i in range(1, len(list)):
+    star_name.append(list[i][1])
+    Distance.append(list[i][2])
+    mass.append(list[i][3])
+    radius.append(list[i][4])
+
+header = ['star_name', 'Distance', 'mass', 'radius']
+frame = pd.DataFrame(list, columns = header)
+
+frame.to_csv('list', index=True, index_label="id")
